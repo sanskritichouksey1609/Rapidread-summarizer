@@ -1,17 +1,18 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-import os
+"""
+Database Configuration (Legacy)
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./database/summaries.db")
+This file is kept for backward compatibility but is no longer used.
+The application now uses a simple JSON-based database system.
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+See json_db.py for the current database implementation.
+"""
 
+# Legacy SQLAlchemy imports (not used)
+# from sqlalchemy import create_engine
+# from sqlalchemy.orm import sessionmaker, declarative_base
+# import os
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# Note: This file is no longer used in the current implementation
+# The application uses JSON files for data storage instead of SQL database
+
+print("Note: database.py is no longer used. Using JSON storage instead.")
