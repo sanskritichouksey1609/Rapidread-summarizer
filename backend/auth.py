@@ -11,7 +11,7 @@ from typing import Optional, Dict, Any
 from fastapi import HTTPException, Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import os
-from backend.json_db import db
+from backend.mysql_db import db
 
 # Security configuration
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-this")

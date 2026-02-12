@@ -9,7 +9,7 @@ from backend.models import GitHubRequest
 from backend.auth import get_current_user
 from backend.services.github_service import get_repo_info
 from backend.services.summarizer_service import summarizer_service
-from backend.json_db import db
+from backend.mysql_db import db
 from typing import Dict, Any
 
 # Create router for GitHub endpoints

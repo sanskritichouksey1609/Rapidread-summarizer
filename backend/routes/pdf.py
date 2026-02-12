@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, Depends, status, UploadFile, File
 from backend.auth import get_current_user
 from backend.services.pdf_service import get_pdf_info
 from backend.services.summarizer_service import summarizer_service
-from backend.json_db import db
+from backend.mysql_db import db
 from typing import Dict, Any
 
 # Create router for PDF endpoints

@@ -98,8 +98,8 @@ def health_check():
                 gemini_status = "error"
                 gemini_details = {"error": str(e)}
         
-        # Check JSON database
-        from backend.json_db import db
+        # Check MySQL database
+        from backend.mysql_db import db
         db_status = "connected"
         
         return {
@@ -125,24 +125,29 @@ def get_storage_info():
     """
     Get information about the storage system
     
-    Returns details about the JSON database storage.
+    Returns details about the MySQL database storage.
     """
     try:
-        from backend.json_db import db
+        from backend.mysql_db import db
         
         # Get basic storage statistics
-        users = db._read_json(db.users_file)
-        summaries = db._read_json(db.summaries_file)
+        connection = db._get_connection()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT COUNT(*) as count FROM users")
+                users_count = cursor.fetchone()['count']
+                
+                cursor.execute("SELECT COUNT(*) as count FROM summaries")
+                summaries_count = cursor.fetchone()['count']
+        finally:
+            connection.close()
         
         return {
-            "storage_type": "JSON",
-            "data_directory": db.data_dir,
-            "users_count": len(users),
-            "summaries_count": len(summaries),
-            "files": {
-                "users": db.users_file,
-                "summaries": db.summaries_file
-            }
+            "storage_type": "MySQL",
+            "database": db.connection_params['database'],
+            "host": db.connection_params['host'],
+            "users_count": users_count,
+            "summaries_count": summaries_count
         }
         
     except Exception as e:

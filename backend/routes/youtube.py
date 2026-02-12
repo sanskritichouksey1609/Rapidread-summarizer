@@ -9,7 +9,7 @@ from backend.models import YouTubeRequest
 from backend.auth import get_current_user
 from backend.services.youtube_service import get_video_info, get_available_languages
 from backend.services.summarizer_service import summarizer_service
-from backend.json_db import db
+from backend.mysql_db import db
 from typing import Dict, Any
 
 # Create router for YouTube endpoints

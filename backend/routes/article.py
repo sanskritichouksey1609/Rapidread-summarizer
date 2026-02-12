@@ -9,7 +9,7 @@ from backend.models import ArticleRequest
 from backend.auth import get_current_user
 from backend.services.article_service import get_article_info
 from backend.services.summarizer_service import summarizer_service
-from backend.json_db import db
+from backend.mysql_db import db
 from typing import Dict, Any
 
 # Create router for article endpoints

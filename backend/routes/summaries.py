@@ -7,7 +7,7 @@ This module handles operations related to user summaries.
 from fastapi import APIRouter, HTTPException, Depends, status
 from backend.models import SummaryListResponse, SummaryResponse
 from backend.auth import get_current_user
-from backend.json_db import db
+from backend.mysql_db import db
 from typing import Dict, Any, List
 
 # Create router for summary endpoints
