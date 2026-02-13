@@ -1,10 +1,3 @@
-"""
-YouTube Service
-
-This service handles YouTube video processing and transcript extraction.
-Uses the YouTube Transcript API to get real video transcripts.
-"""
-
 import re
 from typing import Dict, Any, Optional, List
 from urllib.parse import urlparse, parse_qs
@@ -18,15 +11,6 @@ except ImportError:
 
 
 def fetch_transcript_sync(video_url: str) -> str:
-    """
-    Fetch transcript for a YouTube video using YouTube Transcript API
-    
-    Args:
-        video_url: YouTube video URL
-        
-    Returns:
-        Video transcript text
-    """
     if not YOUTUBE_API_AVAILABLE:
         return "Error: YouTube Transcript API not installed. Please install with: pip install youtube-transcript-api"
     
@@ -92,15 +76,6 @@ def fetch_transcript_sync(video_url: str) -> str:
 
 
 def clean_transcript_text(transcript: str) -> str:
-    """
-    Clean and format transcript text for better readability
-    
-    Args:
-        transcript: Raw transcript text
-        
-    Returns:
-        Cleaned transcript text
-    """
     if not transcript:
         return ""
     
@@ -128,7 +103,6 @@ def clean_transcript_text(transcript: str) -> str:
         
         cleaned = ''.join(capitalized_sentences)
         
-        # Final cleanup
         cleaned = cleaned.strip()
         
         return cleaned
@@ -138,15 +112,6 @@ def clean_transcript_text(transcript: str) -> str:
 
 
 def extract_video_id(video_url: str) -> Optional[str]:
-    """
-    Extract video ID from various YouTube URL formats
-    
-    Args:
-        video_url: YouTube video URL
-        
-    Returns:
-        Video ID string or None if not found
-    """
     if not video_url:
         return None
     
@@ -165,7 +130,6 @@ def extract_video_id(video_url: str) -> Optional[str]:
                 video_id = video_id.split('&')[0].split('?')[0].split('#')[0]
                 return video_id
         
-        # If no pattern matches, try parsing as URL
         parsed_url = urlparse(video_url)
         if parsed_url.hostname in ['www.youtube.com', 'youtube.com', 'm.youtube.com']:
             if parsed_url.path == '/watch':
@@ -182,15 +146,6 @@ def extract_video_id(video_url: str) -> Optional[str]:
 
 
 def get_video_info(video_url: str) -> Dict[str, Any]:
-    """
-    Get comprehensive video information including transcript and metadata
-    
-    Args:
-        video_url: YouTube video URL
-        
-    Returns:
-        Dictionary with video information and transcript
-    """
     try:
         # Check if YouTube API is available
         if not YOUTUBE_API_AVAILABLE:
@@ -205,7 +160,6 @@ def get_video_info(video_url: str) -> Dict[str, Any]:
                 "available_languages": []
             }
         
-        # Extract video ID
         video_id = extract_video_id(video_url)
         
         if not video_id:
@@ -220,7 +174,6 @@ def get_video_info(video_url: str) -> Dict[str, Any]:
                 "available_languages": []
             }
         
-        # Get transcript
         transcript = fetch_transcript_sync(video_url)
         
         if transcript.startswith("Error:"):
@@ -235,7 +188,6 @@ def get_video_info(video_url: str) -> Dict[str, Any]:
                 "available_languages": []
             }
         
-        # Get additional video metadata
         metadata = get_video_metadata(video_id)
         
         return {
@@ -263,15 +215,6 @@ def get_video_info(video_url: str) -> Dict[str, Any]:
 
 
 def get_video_metadata(video_id: str) -> Dict[str, Any]:
-    """
-    Get metadata for a YouTube video
-    
-    Args:
-        video_id: YouTube video ID
-        
-    Returns:
-        Dictionary with video metadata
-    """
     if not YOUTUBE_API_AVAILABLE:
         return {
             "language": "Unknown",
@@ -283,7 +226,6 @@ def get_video_metadata(video_id: str) -> Dict[str, Any]:
         ytt_api = YouTubeTranscriptApi()
         
         try:
-            # Try to get transcript list to determine available languages
             transcript_list = ytt_api.list(video_id)
             
             available_languages = []
@@ -298,7 +240,6 @@ def get_video_metadata(video_id: str) -> Dict[str, Any]:
                 }
                 available_languages.append(lang_info)
                 
-                # Use the first transcript as primary
                 if primary_language == "Unknown":
                     primary_language = transcript.language_code
                     transcript_type = "Auto-generated" if transcript.is_generated else "Manual"
@@ -310,7 +251,6 @@ def get_video_metadata(video_id: str) -> Dict[str, Any]:
             }
             
         except Exception:
-            # Fallback: try to fetch transcript to get basic info
             try:
                 fetched_transcript = ytt_api.fetch(video_id)
                 return {
@@ -334,15 +274,6 @@ def get_video_metadata(video_id: str) -> Dict[str, Any]:
 
 
 def get_available_languages(video_id: str) -> List[Dict[str, Any]]:
-    """
-    Get list of available transcript languages for a video
-    
-    Args:
-        video_id: YouTube video ID
-        
-    Returns:
-        List of available languages with metadata
-    """
     if not YOUTUBE_API_AVAILABLE:
         return []
     
@@ -363,7 +294,6 @@ def get_available_languages(video_id: str) -> List[Dict[str, Any]]:
         return available_languages
         
     except Exception:
-        # Fallback: try common languages
         available_languages = []
         common_languages = ['en', 'en-US', 'en-GB']
         
@@ -387,13 +317,4 @@ def get_available_languages(video_id: str) -> List[Dict[str, Any]]:
 
 # Legacy function for backward compatibility
 def get_youtube_transcript(video_url: str) -> str:
-    """
-    Legacy function for backward compatibility
-    
-    Args:
-        video_url: YouTube video URL
-        
-    Returns:
-        Video transcript text
-    """
     return fetch_transcript_sync(video_url)

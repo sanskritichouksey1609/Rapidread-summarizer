@@ -1,9 +1,3 @@
-"""
-GitHub Repository Summarization Routes
-
-This module handles GitHub repository summarization using modular services.
-"""
-
 from fastapi import APIRouter, HTTPException, Depends, status
 from backend.models import GitHubRequest
 from backend.auth import get_current_user
@@ -12,7 +6,6 @@ from backend.services.summarizer_service import summarizer_service
 from backend.mysql_db import db
 from typing import Dict, Any
 
-# Create router for GitHub endpoints
 router = APIRouter(tags=["GitHub Summarization"])
 
 
@@ -21,31 +14,14 @@ async def summarize_github_repository(
     request: GitHubRequest,
     current_user: Dict[str, Any] = Depends(get_current_user)
 ):
-    """
-    Summarize a GitHub repository
-    
-    This endpoint takes a GitHub repository URL and generates a summary.
-    Note: This is a simplified implementation with placeholder content.
-    
-    Args:
-        request: GitHub request containing the repository URL
-        current_user: Current authenticated user
-        
-    Returns:
-        Summary response with generated summary
-        
-    Raises:
-        HTTPException: If URL is invalid or summarization fails
-    """
+   
     try:
-        # Check if summarizer service is available
         if not summarizer_service:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="AI service is not available. Please check GEMINI_API_KEY configuration."
             )
         
-        # Process GitHub repository URL using GitHub service
         repo_info = get_repo_info(request.repo_url)
         
         if not repo_info["success"]:
@@ -54,11 +30,9 @@ async def summarize_github_repository(
                 detail=f"Failed to process GitHub repository: {repo_info['error']}"
             )
         
-        # Generate summary using summarizer service
         repo_content = repo_info["content"]
         summary = summarizer_service.summarize_text(repo_content, "github")
         
-        # Save summary to database
         summary_record = db.create_summary(
             user_id=current_user["user_id"],
             source_type="github",
@@ -84,7 +58,6 @@ async def summarize_github_repository(
         }
         
     except HTTPException:
-        # Re-raise HTTP exceptions
         raise
     except Exception as e:
         raise HTTPException(

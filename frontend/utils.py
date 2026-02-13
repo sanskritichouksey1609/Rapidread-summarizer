@@ -6,12 +6,6 @@ BACKEND_URL = "http://localhost:8000"
 
 
 def get_auth_headers() -> Dict[str, str]:
-    """
-    Get authentication headers for API requests
-    
-    Returns:
-        Dictionary with Authorization header if user is logged in
-    """
     headers = {"Content-Type": "application/json"}
     
     if st.session_state.get('user_token'):
@@ -21,15 +15,6 @@ def get_auth_headers() -> Dict[str, str]:
 
 
 def summarize_article(url: str) -> Dict[str, Any]:
-    """
-    Summarize an article from URL
-    
-    Args:
-        url: The article URL to summarize
-        
-    Returns:
-        Dictionary with summary result
-    """
     try:
         response = requests.post(
             f"{BACKEND_URL}/article/summarize",
@@ -49,16 +34,6 @@ def summarize_article(url: str) -> Dict[str, Any]:
 
 
 def summarize_pdf(file_content: bytes, filename: str) -> Dict[str, Any]:
-    """
-    Summarize a PDF file
-    
-    Args:
-        file_content: The PDF file content as bytes
-        filename: The original filename
-        
-    Returns:
-        Dictionary with summary result
-    """
     try:
         files = {"file": (filename, file_content, "application/pdf")}
         headers = {}
@@ -83,15 +58,6 @@ def summarize_pdf(file_content: bytes, filename: str) -> Dict[str, Any]:
 
 
 def summarize_youtube(url: str) -> Dict[str, Any]:
-    """
-    Summarize a YouTube video
-    
-    Args:
-        url: The YouTube video URL
-        
-    Returns:
-        Dictionary with summary result
-    """
     try:
         response = requests.post(
             f"{BACKEND_URL}/youtube/summarize",
@@ -111,15 +77,6 @@ def summarize_youtube(url: str) -> Dict[str, Any]:
 
 
 def summarize_github(repo_url: str) -> Dict[str, Any]:
-    """
-    Summarize a GitHub repository
-    
-    Args:
-        repo_url: The GitHub repository URL
-        
-    Returns:
-        Dictionary with summary result
-    """
     try:
         response = requests.post(
             f"{BACKEND_URL}/github/summarize",
@@ -139,12 +96,6 @@ def summarize_github(repo_url: str) -> Dict[str, Any]:
 
 
 def get_my_summaries() -> Dict[str, Any]:
-    """
-    Get all summaries for the current user
-    
-    Returns:
-        Dictionary with user's summaries
-    """
     try:
         response = requests.get(
             f"{BACKEND_URL}/summaries/my-summaries",

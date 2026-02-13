@@ -1,10 +1,3 @@
-"""
-Summarizer Service
-
-This service handles all AI-powered text summarization using Google Gemini.
-It provides a clean interface for generating summaries from different types of content.
-"""
-
 from google import genai
 from google.genai.types import GenerateContentConfig
 import os
@@ -12,71 +5,45 @@ from typing import Optional
 
 
 class SummarizerService:
-    """
-    Service class for AI-powered text summarization using Google Gemini
-    """
     
     def __init__(self):
-        """
-        Initialize the Gemini summarizer service
-        """
-        # Get API key from environment
+        
         self.api_key = os.getenv("GEMINI_API_KEY")
         if not self.api_key:
             raise ValueError("GEMINI_API_KEY not found in environment variables")
         
-        # Initialize the client with API key
         self.client = genai.Client(api_key=self.api_key)
         
-        # Get model name from environment or use default
         self.model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
     
     def summarize_text(self, text: str, content_type: str = "text", max_sentences: int = 5) -> str:
-        """
-        Generate a comprehensive summary using Gemini AI
-        
-        Args:
-            text: The content to summarize
-            content_type: Type of content (text, article, youtube, github, pdf)
-            max_sentences: Maximum number of sentences in summary (deprecated, kept for compatibility)
-            
-        Returns:
-            Generated summary string (300-500 words)
-        """
         try:
             if not text or not text.strip():
                 return "No content available to summarize."
             
-            # Limit input text length to avoid token limits (keep last 15000 chars for better context)
             if len(text) > 15000:
                 text = "..." + text[-15000:]
             
-            # Create appropriate prompt based on content type
             prompt = self._create_prompt(text, content_type)
             
-            # Configure generation parameters for complete summaries
             config = GenerateContentConfig(
-                temperature=0.3,  # Lower temperature for more consistent output
-                max_output_tokens=3000,  # Increased significantly to prevent truncation
+                temperature=0.3, 
+                max_output_tokens=3000,  
                 top_p=0.8,
                 top_k=40,
-                stop_sequences=None  # Don't use stop sequences that might truncate
+                stop_sequences=None 
             )
             
-            # Generate summary using Gemini
             response = self.client.models.generate_content(
                 model=self.model_name,
                 contents=prompt,
                 config=config
             )
             
-            # Extract and validate the summary
             if response and response.text:
                 summary = response.text.strip()
                 
-                # Check if summary appears to be truncated (ends abruptly)
                 if self._is_summary_truncated(summary):
-                    # Try with a more explicit completion request
                     completion_prompt = f"""
 {prompt}
 
@@ -90,7 +57,6 @@ CRITICAL INSTRUCTIONS:
 Please generate the complete summary now:
 """
                     
-                    # Try again with higher token limit
                     extended_config = GenerateContentConfig(
                         temperature=0.3,
                         max_output_tokens=4000,  # Even higher limit
@@ -107,12 +73,9 @@ Please generate the complete summary now:
                     if response and response.text:
                         summary = response.text.strip()
                 
-                # Ensure summary ends properly
                 if summary and not summary.endswith(('.', '!', '?')):
-                    # Find the last complete sentence
                     sentences = summary.split('.')
                     if len(sentences) > 1:
-                        # Keep all complete sentences
                         complete_summary = '.'.join(sentences[:-1]) + '.'
                         return complete_summary
                 
@@ -124,23 +87,11 @@ Please generate the complete summary now:
             return f"Error generating summary: {str(e)}"
     
     def _is_summary_truncated(self, summary: str) -> bool:
-        """
-        Check if a summary appears to be truncated
-        
-        Args:
-            summary: The summary text to check
-            
-        Returns:
-            True if summary appears truncated, False otherwise
-        """
         if not summary:
             return True
         
-        # Check if summary ends abruptly (common signs of truncation)
         truncation_indicators = [
-            # Ends without proper punctuation
             not summary.strip().endswith(('.', '!', '?')),
-            # Ends with incomplete words or phrases
             summary.strip().endswith((',', ';', ':', 'and', 'or', 'but', 'the', 'a', 'an')),
             # Very short summary (likely cut off)
             len(summary.split()) < 30,
@@ -151,16 +102,6 @@ Please generate the complete summary now:
         return any(truncation_indicators)
     
     def _create_prompt(self, content: str, content_type: str) -> str:
-        """
-        Create an appropriate prompt for different content types
-        
-        Args:
-            content: The content to summarize
-            content_type: Type of content
-            
-        Returns:
-            Formatted prompt string
-        """
         base_instruction = """Please provide a comprehensive, detailed summary of the following content. 
 
 IMPORTANT REQUIREMENTS:

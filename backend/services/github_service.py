@@ -1,10 +1,3 @@
-"""
-GitHub Service
-
-This service handles GitHub repository processing and content extraction.
-Note: This is a simplified implementation with placeholder functionality.
-"""
-
 import re
 import requests
 from typing import Dict, Any, Optional
@@ -12,18 +5,6 @@ from urllib.parse import urlparse
 
 
 def fetch_repo_readme(repo_url: str) -> str:
-    """
-    Fetch README content from a GitHub repository
-    
-    Note: This is a simplified implementation.
-    In a full implementation, you would use the GitHub API.
-    
-    Args:
-        repo_url: GitHub repository URL
-        
-    Returns:
-        README content (placeholder for now)
-    """
     try:
         repo_info = extract_repo_info(repo_url)
         if not repo_info:
@@ -81,17 +62,7 @@ To implement full GitHub integration:
 
 
 def extract_repo_info(repo_url: str) -> Optional[Dict[str, str]]:
-    """
-    Extract owner and repository name from GitHub URL
-    
-    Args:
-        repo_url: GitHub repository URL
-        
-    Returns:
-        Dictionary with owner and repo name if found, None otherwise
-    """
     try:
-        # Handle different GitHub URL formats
         patterns = [
             r'github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$',
             r'github\.com/([^/]+)/([^/]+?)(?:/.*)?$'
@@ -115,15 +86,6 @@ def extract_repo_info(repo_url: str) -> Optional[Dict[str, str]]:
 
 
 def validate_github_url(url: str) -> bool:
-    """
-    Validate if the provided URL is a valid GitHub repository URL
-    
-    Args:
-        url: URL to validate
-        
-    Returns:
-        True if URL is a valid GitHub repository URL, False otherwise
-    """
     try:
         repo_info = extract_repo_info(url)
         return repo_info is not None
@@ -132,17 +94,7 @@ def validate_github_url(url: str) -> bool:
 
 
 def get_repo_info(repo_url: str) -> Dict[str, Any]:
-    """
-    Get comprehensive repository information including content and metadata
-    
-    Args:
-        repo_url: GitHub repository URL
-        
-    Returns:
-        Dictionary with repository information
-    """
     try:
-        # Validate URL
         if not validate_github_url(repo_url):
             return {
                 "success": False,
@@ -153,10 +105,8 @@ def get_repo_info(repo_url: str) -> Dict[str, Any]:
                 "url": repo_url
             }
         
-        # Extract repository information
         repo_info = extract_repo_info(repo_url)
         
-        # Get repository content (placeholder implementation)
         content = fetch_repo_readme(repo_url)
         
         if not content.strip():
@@ -191,21 +141,6 @@ def get_repo_info(repo_url: str) -> Dict[str, Any]:
 
 
 def fetch_repo_content_advanced(repo_url: str) -> Dict[str, Any]:
-    """
-    Advanced repository content fetching (placeholder for future implementation)
-    
-    This function would implement more sophisticated repository analysis:
-    - Code structure analysis
-    - Dependency analysis
-    - Documentation extraction
-    - Recent commits and activity
-    
-    Args:
-        repo_url: GitHub repository URL
-        
-    Returns:
-        Dictionary with advanced repository analysis
-    """
     try:
         repo_info = extract_repo_info(repo_url)
         if not repo_info:
@@ -233,15 +168,5 @@ def fetch_repo_content_advanced(repo_url: str) -> Dict[str, Any]:
         }
 
 
-# Legacy function for backward compatibility
 def get_github_readme(repo_url: str) -> str:
-    """
-    Legacy function for backward compatibility
-    
-    Args:
-        repo_url: GitHub repository URL
-        
-    Returns:
-        README content
-    """
     return fetch_repo_readme(repo_url)
