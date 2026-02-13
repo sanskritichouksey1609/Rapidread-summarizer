@@ -1,23 +1,12 @@
-"""
-Database Initialization Script
-
-This script initializes the MySQL database tables for the Rapidread Summarizer.
-Run this script once before starting the application for the first time.
-"""
-
 import sys
 from pathlib import Path
 
-# Add parent directory to path for imports
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from backend.mysql_db import db
 
 def main():
-    """
-    Initialize the database
-    """
     print("=" * 60)
     print("Rapidread Summarizer - Database Initialization")
     print("=" * 60)

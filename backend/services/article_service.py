@@ -1,10 +1,3 @@
-"""
-Article Service
-
-This service handles web article content extraction and processing.
-It provides robust article parsing with multiple fallback methods.
-"""
-
 import requests
 import re
 from typing import Dict, Any, Optional, List
@@ -12,7 +5,6 @@ from urllib.parse import urlparse
 from datetime import datetime
 import time
 
-# Try to import newspaper3k
 try:
     from newspaper import Article, fulltext
     import newspaper
@@ -20,18 +12,15 @@ try:
 except ImportError:
     NEWSPAPER_AVAILABLE = False
 
-# Try to import BeautifulSoup
 try:
     from bs4 import BeautifulSoup
     BEAUTIFULSOUP_AVAILABLE = True
 except ImportError:
     BEAUTIFULSOUP_AVAILABLE = False
 
-# Download NLTK data if needed
 if NEWSPAPER_AVAILABLE:
     try:
         import nltk
-        # Download required NLTK data
         nltk.download('punkt', quiet=True)
         nltk.download('punkt_tab', quiet=True)
     except Exception:
@@ -39,15 +28,6 @@ if NEWSPAPER_AVAILABLE:
 
 
 def get_article_info(url: str) -> Dict[str, Any]:
-    """
-    Get comprehensive article information using multiple extraction methods
-    
-    Args:
-        url: URL of the article
-        
-    Returns:
-        Dictionary with article information
-    """
     try:
         # Validate URL first
         if not validate_article_url(url):
@@ -59,19 +39,16 @@ def get_article_info(url: str) -> Dict[str, Any]:
                 "url": url
             }
         
-        # Method 1: Try newspaper3k with enhanced configuration
         if NEWSPAPER_AVAILABLE:
             result = try_newspaper_extraction(url)
             if result["success"]:
                 return result
         
-        # Method 2: Try enhanced requests + BeautifulSoup
         if BEAUTIFULSOUP_AVAILABLE:
             result = try_beautifulsoup_extraction(url)
             if result["success"]:
                 return result
         
-        # Method 3: Basic requests + regex fallback
         result = try_basic_extraction(url)
         return result
         
@@ -86,17 +63,7 @@ def get_article_info(url: str) -> Dict[str, Any]:
 
 
 def try_newspaper_extraction(url: str) -> Dict[str, Any]:
-    """
-    Try extracting article using newspaper3k with robust configuration
-    
-    Args:
-        url: URL of the article
-        
-    Returns:
-        Dictionary with extraction result
-    """
     try:
-        # Create configuration
         config = newspaper.Config()
         config.browser_user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         config.request_timeout = 15
@@ -104,10 +71,8 @@ def try_newspaper_extraction(url: str) -> Dict[str, Any]:
         config.fetch_images = False
         config.memoize_articles = False
         
-        # Create article object
         article = Article(url, config=config)
         
-        # Download with retry logic
         max_retries = 2
         for attempt in range(max_retries):
             try:
@@ -118,14 +83,11 @@ def try_newspaper_extraction(url: str) -> Dict[str, Any]:
                     raise e
                 time.sleep(1)
         
-        # Check if download was successful
         if not article.html or len(article.html) < 100:
             return {"success": False, "error": "No content downloaded"}
         
-        # Parse the article
         article.parse()
         
-        # Get basic content
         article_text = article.text
         article_title = article.title
         
@@ -133,7 +95,6 @@ def try_newspaper_extraction(url: str) -> Dict[str, Any]:
         if not article_text or len(article_text.strip()) < 50:
             return {"success": False, "error": "Content too short"}
         
-        # Try NLP analysis (optional, don't fail if it doesn't work)
         keywords = []
         summary = ""
         try:
@@ -143,12 +104,10 @@ def try_newspaper_extraction(url: str) -> Dict[str, Any]:
         except Exception:
             pass
         
-        # Get metadata
         authors = getattr(article, 'authors', [])
         publish_date = getattr(article, 'publish_date', None)
         top_image = getattr(article, 'top_image', '')
         
-        # Format publish date
         publish_date_str = ""
         if publish_date:
             try:
@@ -159,7 +118,6 @@ def try_newspaper_extraction(url: str) -> Dict[str, Any]:
             except:
                 publish_date_str = ""
         
-        # Limit content length
         if len(article_text) > 15000:
             article_text = article_text[:15000] + "..."
         
@@ -182,15 +140,6 @@ def try_newspaper_extraction(url: str) -> Dict[str, Any]:
 
 
 def try_beautifulsoup_extraction(url: str) -> Dict[str, Any]:
-    """
-    Try extracting article using requests + BeautifulSoup
-    
-    Args:
-        url: URL of the article
-        
-    Returns:
-        Dictionary with extraction result
-    """
     try:
         # Make request with enhanced headers
         headers = get_enhanced_headers()
@@ -205,19 +154,15 @@ def try_beautifulsoup_extraction(url: str) -> Dict[str, Any]:
         if len(html_content) < 100:
             return {"success": False, "error": "HTML content too short"}
         
-        # Parse with BeautifulSoup
         soup = BeautifulSoup(html_content, 'html.parser')
         
-        # Extract title
         title = extract_title_from_soup(soup) or extract_title_from_url(url)
         
-        # Extract main content
         content = extract_content_from_soup(soup)
         
         if not content or len(content.strip()) < 50:
             return {"success": False, "error": "No meaningful content found"}
         
-        # Limit content length
         if len(content) > 15000:
             content = content[:15000] + "..."
         
@@ -240,15 +185,6 @@ def try_beautifulsoup_extraction(url: str) -> Dict[str, Any]:
 
 
 def try_basic_extraction(url: str) -> Dict[str, Any]:
-    """
-    Basic extraction using requests + regex (final fallback)
-    
-    Args:
-        url: URL of the article
-        
-    Returns:
-        Dictionary with extraction result
-    """
     try:
         # Make request
         headers = get_enhanced_headers()
@@ -260,10 +196,8 @@ def try_basic_extraction(url: str) -> Dict[str, Any]:
         if len(html_content) < 100:
             return {"success": False, "error": "HTML content too short"}
         
-        # Extract title
         title = extract_title_from_html(html_content) or extract_title_from_url(url)
         
-        # Extract content using regex
         content = extract_text_from_html_regex(html_content)
         
         if not content or len(content.strip()) < 50:
@@ -294,12 +228,6 @@ def try_basic_extraction(url: str) -> Dict[str, Any]:
 
 
 def get_enhanced_headers() -> Dict[str, str]:
-    """
-    Get enhanced headers to avoid blocking
-    
-    Returns:
-        Dictionary of HTTP headers
-    """
     return {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -316,19 +244,8 @@ def get_enhanced_headers() -> Dict[str, str]:
         'Sec-GPC': '1'
     }
 
-
 def extract_title_from_soup(soup) -> str:
-    """
-    Extract title from BeautifulSoup object
-    
-    Args:
-        soup: BeautifulSoup object
-        
-    Returns:
-        Extracted title
-    """
     try:
-        # Try different title sources
         title_sources = [
             soup.find('title'),
             soup.find('h1'),
@@ -355,21 +272,10 @@ def extract_title_from_soup(soup) -> str:
 
 
 def extract_content_from_soup(soup) -> str:
-    """
-    Extract main content from BeautifulSoup object
-    
-    Args:
-        soup: BeautifulSoup object
-        
-    Returns:
-        Extracted content text
-    """
     try:
-        # Remove unwanted elements
         for element in soup(['script', 'style', 'nav', 'footer', 'aside', 'header', 'menu', 'noscript']):
             element.decompose()
         
-        # Try to find main content areas (in order of preference)
         content_selectors = [
             'article',
             'main',
@@ -392,14 +298,11 @@ def extract_content_from_soup(soup) -> str:
             if main_content and main_content.get_text(strip=True):
                 break
         
-        # If no specific content area found, use the whole body
         if not main_content:
             main_content = soup.find('body') or soup
         
-        # Extract text
         text = main_content.get_text(strip=True, separator=' ')
         
-        # Clean up the text
         text = re.sub(r'\s+', ' ', text)
         text = text.strip()
         
@@ -410,15 +313,6 @@ def extract_content_from_soup(soup) -> str:
 
 
 def extract_title_from_html(html_content: str) -> str:
-    """
-    Extract title from HTML using regex
-    
-    Args:
-        html_content: HTML content string
-        
-    Returns:
-        Extracted title
-    """
     try:
         # Try different title patterns
         patterns = [
@@ -444,24 +338,13 @@ def extract_title_from_html(html_content: str) -> str:
 
 
 def extract_title_from_url(url: str) -> str:
-    """
-    Extract a reasonable title from URL as fallback
-    
-    Args:
-        url: URL string
-        
-    Returns:
-        Generated title from URL
-    """
     try:
         parsed = urlparse(url)
         domain = parsed.netloc.replace('www.', '')
         path = parsed.path.strip('/')
         
         if path:
-            # Use the last part of the path
             title_part = path.split('/')[-1]
-            # Clean up
             title_part = re.sub(r'[_-]', ' ', title_part)
             title_part = re.sub(r'\.[^.]*$', '', title_part)  # Remove file extension
             title_part = title_part.title()
@@ -473,34 +356,22 @@ def extract_title_from_url(url: str) -> str:
 
 
 def extract_text_from_html_regex(html_content: str) -> str:
-    """
-    Extract readable text content from HTML using regex (final fallback method)
-    
-    Args:
-        html_content: Raw HTML content
-        
-    Returns:
-        Cleaned text content
-    """
     try:
-        # Remove script and style elements
+      
         html_content = re.sub(r'<script[^>]*>.*?</script>', '', html_content, flags=re.DOTALL | re.IGNORECASE)
         html_content = re.sub(r'<style[^>]*>.*?</style>', '', html_content, flags=re.DOTALL | re.IGNORECASE)
         
-        # Remove HTML tags
+        
         text_content = re.sub(r'<[^>]+>', ' ', html_content)
         
-        # Decode HTML entities
         try:
             import html
             text_content = html.unescape(text_content)
         except:
             pass
         
-        # Clean up whitespace
         text_content = re.sub(r'\s+', ' ', text_content).strip()
         
-        # Limit content length for API efficiency
         if len(text_content) > 15000:
             text_content = text_content[:15000] + "..."
         
@@ -511,34 +382,22 @@ def extract_text_from_html_regex(html_content: str) -> str:
 
 
 def validate_article_url(url: str) -> bool:
-    """
-    Validate if the provided URL is a valid web article URL
     
-    Args:
-        url: URL to validate
-        
-    Returns:
-        True if URL appears to be valid, False otherwise
-    """
     try:
         if not url or not isinstance(url, str):
             return False
         
-        # Add protocol if missing
         if not url.startswith(('http://', 'https://')):
             url = 'https://' + url
         
         parsed = urlparse(url)
         
-        # Check basic URL structure
         if not (parsed.scheme and parsed.netloc):
             return False
         
-        # Check if it's HTTP/HTTPS
         if parsed.scheme not in ['http', 'https']:
             return False
         
-        # Exclude common non-article URLs
         excluded_extensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.zip', '.rar', '.jpg', '.png', '.gif', '.mp4', '.mp3']
         if any(url.lower().endswith(ext) for ext in excluded_extensions):
             return False
@@ -549,31 +408,12 @@ def validate_article_url(url: str) -> bool:
         return False
 
 
-# Simplified functions for backward compatibility
 def fetch_article_text(url: str) -> str:
-    """
-    Fetch and extract text content from a web article URL
-    
-    Args:
-        url: URL of the article to fetch
-        
-    Returns:
-        Extracted text content from the article
-    """
     result = get_article_info(url)
     return result.get("content", "") if result.get("success") else ""
 
 
 def get_article_metadata(url: str) -> Dict[str, Any]:
-    """
-    Get only metadata from an article without full content extraction
-    
-    Args:
-        url: URL of the article
-        
-    Returns:
-        Dictionary with article metadata
-    """
     result = get_article_info(url)
     if result.get("success"):
         return {
@@ -588,15 +428,6 @@ def get_article_metadata(url: str) -> Dict[str, Any]:
         return {"error": result.get("error", "Failed to get metadata")}
 
 
-# Legacy function for backward compatibility
 def extract_text_from_html(html_content: str) -> str:
-    """
-    Legacy function for backward compatibility
     
-    Args:
-        html_content: HTML content
-        
-    Returns:
-        Extracted text
-    """
     return extract_text_from_html_regex(html_content)

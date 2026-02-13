@@ -15,7 +15,7 @@ def main():
     """
     Main function to start the backend server
     """
-    print("🚀 Starting Rapidread Summarizer Backend...")
+    print("Starting Rapidread Summarizer Backend...")
     
     # Get the project root directory
     project_root = Path(__file__).parent
@@ -33,9 +33,9 @@ def main():
         host = os.getenv("HOST", "0.0.0.0")
         port = int(os.getenv("PORT", 8000))
         
-        print(f"📍 Server will run on: http://{host}:{port}")
-        print(f"📚 API Documentation: http://{host}:{port}/docs")
-        print(f"🔍 Health Check: http://{host}:{port}/health")
+        print(f"Server will run on: http://{host}:{port}")
+        print(f"API Documentation: http://{host}:{port}/docs")
+        print(f"Health Check: http://{host}:{port}/health")
         print("Press Ctrl+C to stop the server\n")
         
         # Start the server
@@ -47,12 +47,12 @@ def main():
         )
         
     except ImportError as e:
-        print(f"❌ Import error: {e}")
+        print(f"Import error: {e}")
         print("Make sure you have installed all dependencies:")
         print("pip install -r requirements.txt")
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Error starting server: {e}")
+        print(f"Error starting server: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

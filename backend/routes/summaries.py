@@ -1,33 +1,15 @@
-"""
-Summary Management Routes
-
-This module handles operations related to user summaries.
-"""
-
 from fastapi import APIRouter, HTTPException, Depends, status
 from backend.models import SummaryListResponse, SummaryResponse
 from backend.auth import get_current_user
 from backend.mysql_db import db
 from typing import Dict, Any, List
 
-# Create router for summary endpoints
 router = APIRouter(tags=["Summary Management"])
 
 
 @router.get("/my-summaries", response_model=Dict[str, Any])
 async def get_my_summaries(current_user: Dict[str, Any] = Depends(get_current_user)):
-    """
-    Get all summaries for the current user
-    
-    This endpoint returns all summaries created by the currently logged-in user,
-    sorted by creation date (newest first).
-    
-    Args:
-        current_user: Current authenticated user
-        
-    Returns:
-        List of user's summaries
-    """
+  
     try:
         # Get user's summaries from database
         summaries = db.get_user_summaries(current_user["user_id"])
@@ -61,23 +43,8 @@ async def get_summary_by_id(
     summary_id: str,
     current_user: Dict[str, Any] = Depends(get_current_user)
 ):
-    """
-    Get a specific summary by ID
-    
-    This endpoint returns a specific summary if it belongs to the current user.
-    
-    Args:
-        summary_id: ID of the summary to retrieve
-        current_user: Current authenticated user
-        
-    Returns:
-        Summary details
-        
-    Raises:
-        HTTPException: If summary not found or doesn't belong to user
-    """
     try:
-        # Get summary from database
+       
         summary = db.get_summary_by_id(summary_id)
         
         if not summary:
@@ -86,7 +53,6 @@ async def get_summary_by_id(
                 detail="Summary not found"
             )
         
-        # Check if summary belongs to current user
         if summary["user_id"] != current_user["user_id"]:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -106,7 +72,6 @@ async def get_summary_by_id(
         }
         
     except HTTPException:
-        # Re-raise HTTP exceptions
         raise
     except Exception as e:
         raise HTTPException(
@@ -120,23 +85,8 @@ async def delete_summary(
     summary_id: str,
     current_user: Dict[str, Any] = Depends(get_current_user)
 ):
-    """
-    Delete a specific summary
-    
-    This endpoint deletes a summary if it belongs to the current user.
-    
-    Args:
-        summary_id: ID of the summary to delete
-        current_user: Current authenticated user
-        
-    Returns:
-        Success message
-        
-    Raises:
-        HTTPException: If summary not found or doesn't belong to user
-    """
+   
     try:
-        # Get summary from database to verify ownership
         summary = db.get_summary_by_id(summary_id)
         
         if not summary:
@@ -145,15 +95,12 @@ async def delete_summary(
                 detail="Summary not found"
             )
         
-        # Check if summary belongs to current user
         if summary["user_id"] != current_user["user_id"]:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You don't have permission to delete this summary"
             )
         
-        # Note: For simplicity, we're not implementing actual deletion in JSON database
-        # In a real application, you would implement a delete method in the database class
         
         return {
             "success": True,
@@ -161,7 +108,6 @@ async def delete_summary(
         }
         
     except HTTPException:
-        # Re-raise HTTP exceptions
         raise
     except Exception as e:
         raise HTTPException(

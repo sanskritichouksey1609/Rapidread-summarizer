@@ -1,9 +1,3 @@
-"""
-Article Summarization Routes
-
-This module handles web article summarization using modular services.
-"""
-
 from fastapi import APIRouter, HTTPException, Depends, status
 from backend.models import ArticleRequest
 from backend.auth import get_current_user
@@ -12,7 +6,6 @@ from backend.services.summarizer_service import summarizer_service
 from backend.mysql_db import db
 from typing import Dict, Any
 
-# Create router for article endpoints
 router = APIRouter(tags=["Article Summarization"])
 
 
@@ -21,31 +14,14 @@ async def summarize_article(
     request: ArticleRequest,
     current_user: Dict[str, Any] = Depends(get_current_user)
 ):
-    """
-    Summarize a web article from URL
-    
-    This endpoint takes a web article URL, extracts the content,
-    and generates a summary using Gemini AI.
-    
-    Args:
-        request: Article request containing the URL
-        current_user: Current authenticated user
-        
-    Returns:
-        Summary response with generated summary
-        
-    Raises:
-        HTTPException: If URL is invalid or summarization fails
-    """
+  
     try:
-        # Check if summarizer service is available
         if not summarizer_service:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="AI service is not available. Please check GEMINI_API_KEY configuration."
             )
         
-        # Extract content from the article URL using article service
         article_info = get_article_info(request.url)
         
         if not article_info["success"]:
@@ -54,11 +30,9 @@ async def summarize_article(
                 detail=f"Failed to extract article content: {article_info['error']}"
             )
         
-        # Generate summary using summarizer service
         article_content = article_info["content"]
         summary = summarizer_service.summarize_text(article_content, "article")
         
-        # Save summary to database
         summary_record = db.create_summary(
             user_id=current_user["user_id"],
             source_type="article",
@@ -87,7 +61,6 @@ async def summarize_article(
         }
         
     except HTTPException:
-        # Re-raise HTTP exceptions
         raise
     except Exception as e:
         raise HTTPException(
