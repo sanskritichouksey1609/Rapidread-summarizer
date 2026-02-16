@@ -1,3 +1,5 @@
+"""extracts repository information (README, description, metadata) 
+using the GitHub API or web scraping"""
 from fastapi import APIRouter, HTTPException, Depends, status
 from backend.models import GitHubRequest
 from backend.auth import get_current_user

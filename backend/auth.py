@@ -1,3 +1,6 @@
+"""File contains the actual authentication logic - creating tokens,
+verifying tokens, registering users,
+and logging in users. The routes file calls these functions."""
 import jwt
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any

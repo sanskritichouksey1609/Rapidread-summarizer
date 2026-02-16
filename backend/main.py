@@ -1,3 +1,4 @@
+"""Main entry point of project"""
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -11,7 +12,7 @@ app = FastAPI(
     description="AI-powered content summarization service using Google Gemini",
     version="1.0.0"
 )
-
+"""frontend and backend runs of different origins CORS let them interact"""
 allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:8501").split(",")
 app.add_middleware(
     CORSMiddleware,
@@ -22,7 +23,7 @@ app.add_middleware(
 )
 
 from backend.routes import auth, article, youtube, pdf, github, summaries
-
+"""Each route file handling specific functionalities"""
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 
 app.include_router(article.router, prefix="/article", tags=["Article Summarization"])

@@ -1,3 +1,4 @@
+"""extracts the article content using web scraping, generates an AI summary using Google Gemini"""
 from fastapi import APIRouter, HTTPException, Depends, status
 from backend.models import ArticleRequest
 from backend.auth import get_current_user
@@ -59,7 +60,7 @@ async def summarize_article(
                 "created_at": summary_record["created_at"]
             }
         }
-        
+     
     except HTTPException:
         raise
     except Exception as e:

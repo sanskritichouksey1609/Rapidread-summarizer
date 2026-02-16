@@ -1,3 +1,5 @@
+"""extracts video transcripts (captions), 
+sends to AI for summarization, and saves the result. Also includes debug/test endpoints."""
 import re
 from typing import Dict, Any, Optional, List
 from urllib.parse import urlparse, parse_qs

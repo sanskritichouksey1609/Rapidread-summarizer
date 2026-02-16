@@ -1,3 +1,5 @@
+"""Control comes here after main
+creates 5 API endpoints for user authentication"""
 from fastapi import APIRouter, HTTPException, Depends, status
 from backend.models import UserRegister, UserLogin, LoginResponse, UserResponse, SuccessResponse
 from backend.auth import register_user, login_user, get_current_user
@@ -5,7 +7,6 @@ from typing import Dict, Any
 
 # Create router for authentication endpoints
 router = APIRouter(tags=["Authentication"])
-
 
 @router.post("/register", response_model=Dict[str, Any], status_code=status.HTTP_201_CREATED)
 async def register_new_user(user_data: UserRegister):
@@ -27,7 +28,6 @@ async def register_new_user(user_data: UserRegister):
             detail=f"Registration failed: {str(e)}"
         )
 
-
 @router.post("/login", response_model=LoginResponse)
 async def login_existing_user(user_credentials: UserLogin):
     
@@ -39,7 +39,6 @@ async def login_existing_user(user_credentials: UserLogin):
         return result
         
     except HTTPException:
-        # Re-raise HTTP exceptions
         raise
     except Exception as e:
         raise HTTPException(
@@ -56,7 +55,7 @@ async def get_user_profile(current_user: Dict[str, Any] = Depends(get_current_us
             id=current_user["user_id"],
             full_name=current_user["full_name"],
             email=current_user["email"],
-            created_at="2024-01-01T00:00:00"  # Placeholder - you can get this from database
+            created_at="2024-01-01T00:00:00"  
         )
         
     except Exception as e:

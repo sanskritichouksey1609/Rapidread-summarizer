@@ -1,3 +1,5 @@
+"""extracts video transcripts/captions using the YouTube Transcript API,
+generates an AI summary of the video content"""
 from fastapi import APIRouter, HTTPException, Depends, status
 from backend.models import YouTubeRequest
 from backend.auth import get_current_user
