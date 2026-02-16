@@ -1,3 +1,7 @@
+"""File contains the actual authentication logic - creating tokens,
+verifying tokens, registering users, and 
+logging in users. The routes file calls these functions."""
+
 from fastapi import APIRouter, HTTPException, Depends, status
 from backend.models import SummaryListResponse, SummaryResponse
 from backend.auth import get_current_user

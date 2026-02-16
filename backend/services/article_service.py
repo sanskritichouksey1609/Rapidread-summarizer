@@ -1,3 +1,5 @@
+""" takes a URL, extracts the article text, sends to AI for summarization, and saves the result. 
+It's the bridge between the frontend and the article extraction + AI services."""
 import requests
 import re
 from typing import Dict, Any, Optional, List

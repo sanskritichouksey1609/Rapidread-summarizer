@@ -1,3 +1,4 @@
+"""extracts text content using PyPDF2, validates file size and format, generates an AI summary """
 from fastapi import APIRouter, HTTPException, Depends, status, UploadFile, File
 from backend.auth import get_current_user
 from backend.services.pdf_service import get_pdf_info

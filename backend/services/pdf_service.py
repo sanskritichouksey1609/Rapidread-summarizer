@@ -1,3 +1,4 @@
+"""handles PDF file processing and text extraction using PyPDF"""
 import PyPDF2
 from io import BytesIO
 from typing import Dict, Any
@@ -11,7 +12,8 @@ def extract_text_from_pdf(path: str) -> str:
             return extract_text_from_pdf_bytes(pdf_content)
     except Exception:
         return ""
-
+"""PyPDF2: PDF reading and text extraction
+BytesIO: In-memory file handling"""
 
 def extract_text_from_pdf_bytes(pdf_content: bytes) -> str:
   
